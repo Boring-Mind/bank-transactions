@@ -1,0 +1,2 @@
+django==3.0.8
+argon2-cffi==20.1.0
