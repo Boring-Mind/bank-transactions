@@ -9,6 +9,10 @@ class Client(AbstractUser):
 	passport_number = models.CharField(max_length=10, unique=True)
 
 	objects = UserManager()
+	# instead of Client.objects.create use create_user()
+	# That will create hashed password
+	# Signature is as follows:
+	# create_user(username, password=None, email=None)
 
 
 class Account(models.Model):
