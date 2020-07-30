@@ -4,7 +4,7 @@ from currency.models import Currency
 
 
 class Client(AbstractUser):
-	patronymic = models.CharField(max_length=190)
+	patronymic = models.CharField(max_length=190, blank=True)
 	phone_number = models.CharField(max_length=15, unique=True)
 	passport_number = models.CharField(max_length=10, unique=True)
 

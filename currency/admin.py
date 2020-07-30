@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import Currency, ExchangeRate
 
-# Register your models here.
+
+@admin.register(Currency, ExchangeRate)
+class CurrencyAdmin(admin.ModelAdmin):
+    pass
