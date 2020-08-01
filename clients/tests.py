@@ -1,5 +1,3 @@
-from django.contrib.auth.hashers import make_password
-from django.test import TestCase
 from rest_framework.test import APITestCase
 
 from .models import Client
@@ -9,8 +7,7 @@ class ModelIntegrationTests(APITestCase):
 	def test_password_is_saved_as_hash(self):
 		"""Ensure password is stored as correct hash.
 
-		For hashing we use default hasher
-		which is listed in Django settings.
+		For hashing we use Argon2.
 		"""
 		password = 'SomeP@ssw0rd'
 		client = Client.objects.create(
@@ -20,8 +17,6 @@ class ModelIntegrationTests(APITestCase):
 			passport_number='0123456789'
 		)
 
-		self.assertEquals(Client.objects.count(), 1)
+		argon_signature = 'argon2$argon2i$v=19$m=512,t=2,'
 
-		expected = make_password(password)
-
-		self.assertEquals(client.password, expected)
+		self.assertIn(argon_signature, client.password)

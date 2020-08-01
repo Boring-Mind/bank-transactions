@@ -6,6 +6,7 @@ import django.contrib.auth.validators
 from django.db import migrations, models
 import django.db.models.deletion
 import django.utils.timezone
+import clients.models
 
 
 class Migration(migrations.Migration):
@@ -44,7 +45,7 @@ class Migration(migrations.Migration):
                 'abstract': False,
             },
             managers=[
-                ('objects', django.contrib.auth.models.UserManager()),
+                ('objects', clients.models.ClientManager()),
             ],
         ),
         migrations.CreateModel(
