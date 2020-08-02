@@ -110,8 +110,11 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
 ]
 
+# Exchange rates server parameters
 
 EXCHANGE_APP_ID = config('EXCHANGE_APP_ID')
+
+EXCHANGE_LINK = 'https://openexchangerates.org/api/latest.json'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/

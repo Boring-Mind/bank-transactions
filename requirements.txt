@@ -2,4 +2,5 @@ argon2-cffi==20.1.0
 django==3.0.8
 djangorestframework==3.11.0
 python-decouple==3.3
+requests==2.24.0
 wheel==0.34.2
