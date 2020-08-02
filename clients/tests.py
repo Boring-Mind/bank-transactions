@@ -1,7 +1,4 @@
 from rest_framework.test import APITestCase
-# from django.db.backends.base import base as db_base
-from django.db import connections
-from django.db.utils import OperationalError
 
 from .models import Client
 
@@ -23,12 +20,3 @@ class ModelIntegrationTests(APITestCase):
 		argon_signature = 'argon2$argon2i$v=19$m=512,t=2,'
 
 		self.assertIn(argon_signature, client.password)
-
-
-class SmokeTests(APITestCase):
-	def test_database_is_online(self):
-		conn = connections['default']
-		try:
-			cursor = conn.cursor()
-		except OperationalError as err:
-			self.fail(f'Db connection was not established\n{err}')
