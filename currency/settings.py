@@ -1,4 +1,5 @@
 from django.conf import settings
+from typing import List
 
 
 CURRENCIES = [
@@ -9,7 +10,7 @@ CURRENCIES = [
 	'AUD',
 ]
 
-def get_currencies():
+def get_currencies() -> List[str]:
 	cur_list = getattr(settings, 'CURRENCIES', CURRENCIES)
 	if cur_list is None:
 		cur_list = CURRENCIES

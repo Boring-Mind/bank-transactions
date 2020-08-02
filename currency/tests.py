@@ -3,6 +3,7 @@ from django.test import TestCase
 from contextlib import contextmanager
 
 from .settings import get_currencies
+from .exchange_rates import parse_currencies_to_params
 
 
 @contextmanager
@@ -37,5 +38,15 @@ class SettingsTests(TestCase):
 		with custom_currencies():
 			settings.CURRENCIES = expected
 			actual = get_currencies()
+
+		self.assertEqual(actual, expected)
+
+
+class ExchangeRatesTests(TestCase):
+	def test_parse_currencies_to_params(self):
+		expected = 'USD,EUR,JPY,GBP,AUD'
+		cur_list = ['USD', 'EUR', 'JPY', 'GBP', 'AUD']
+		
+		actual = parse_currencies_to_params(cur_list)
 
 		self.assertEqual(actual, expected)
