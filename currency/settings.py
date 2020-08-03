@@ -10,6 +10,7 @@ CURRENCIES = [
     'AUD',
 ]
 
+
 def get_currencies() -> List[str]:
     cur_list = getattr(settings, 'CURRENCIES', CURRENCIES)
     if cur_list is None:

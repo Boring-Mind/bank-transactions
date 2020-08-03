@@ -3,7 +3,7 @@ from django.test import TestCase
 from contextlib import contextmanager
 
 from .settings import get_currencies
-from .exchange_rates import parse_currencies_to_params, retrieve_rates
+from .exchange_rates import parse_currencies_to_params
 
 
 @contextmanager

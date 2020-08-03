@@ -6,6 +6,7 @@ class Currency(models.Model):
     short_name = models.CharField(max_length=3, unique=True)
     full_name = models.CharField(max_length=25)
 
+
 class ExchangeRate(models.Model):
     currency_sender = models.ForeignKey(
         'Currency',

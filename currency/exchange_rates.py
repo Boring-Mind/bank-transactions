@@ -9,6 +9,7 @@ def parse_currencies_to_params(currencies: List[str]) -> str:
     """Convert currencies to the GET params."""
     return ','.join(currencies)
 
+
 def get_params() -> dict:
     cur_list = get_currencies()
 
@@ -18,8 +19,10 @@ def get_params() -> dict:
         'prettyprint': False
     }
 
+
 def get_link() -> str:
     return settings.EXCHANGE_LINK
+
 
 def retrieve_rates():
     """Retrieve exchange rates from the server."""
