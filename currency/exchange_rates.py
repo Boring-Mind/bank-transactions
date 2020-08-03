@@ -1,6 +1,7 @@
-from django.conf import settings
-import requests
 from typing import List
+
+import requests
+from django.conf import settings
 
 from .settings import get_currencies
 

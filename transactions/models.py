@@ -1,6 +1,5 @@
-from django.db import models
 from clients.models import Client
-from currency.models import Currency
+from django.db import models
 
 
 class Transactions(models.Model):

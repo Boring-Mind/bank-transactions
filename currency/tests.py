@@ -1,9 +1,10 @@
-from django.conf import settings
-from django.test import TestCase
 from contextlib import contextmanager
 
-from .settings import get_currencies
+from django.conf import settings
+from django.test import TestCase
+
 from .exchange_rates import parse_currencies_to_params
+from .settings import get_currencies
 
 
 @contextmanager
