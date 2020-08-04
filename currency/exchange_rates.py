@@ -7,7 +7,11 @@ from .settings import get_currencies
 
 
 def parse_currencies_to_params(currencies: List[str]) -> str:
-    """Convert currencies to the GET params."""
+    """Convert currencies to the GET params.
+
+    Returns a string with following format:
+    'AUD,EUR,GBP,JPY,USD'
+    """
     return ','.join(currencies)
 
 
@@ -32,8 +36,7 @@ def retrieve_rates():
 
     response = requests.get(link, params)
     if response.status_code == 200:
-        data = response.json()
-        return data['rates']
+        return response.json()['rates']
     else:
         # ToDo: add logging
         return None
