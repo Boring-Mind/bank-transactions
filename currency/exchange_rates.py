@@ -3,6 +3,7 @@ from typing import List
 import requests
 from django.conf import settings
 
+from .models import Currency
 from .settings import get_currencies
 
 
@@ -29,7 +30,7 @@ def get_link() -> str:
     return settings.EXCHANGE_LINK
 
 
-def retrieve_rates():
+def retrieve_rates() -> dict:
     """Retrieve exchange rates from the server."""
     link = get_link()
     params = get_params()
@@ -40,3 +41,22 @@ def retrieve_rates():
     else:
         # ToDo: add logging
         return None
+
+def update_rates() -> None:
+    """Update exchange rates and save them to db.
+
+    Run that task once a day in 00:00 via Celery.
+    """
+    # ToDo: add await to this
+    new_rates = retrieve_rates()
+
+    # ToDo: add await to this
+    currencies = Currency.objects.all()
+
+    # Fold into function
+    for c in currencies:
+        if rate := new_rates.get(c.short_name):
+            c.rate = rate
+
+    # ToDo: don't await for the result
+    Currency.objects.bulk_update(currencies, ['rate'])
