@@ -87,6 +87,60 @@ DATABASES = {
     }
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} m:{module} p-id:{process:d} t-id:{thread:d}\n\"{message}\"',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {asctime} {message}',
+            'style': '{',
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        'file_info': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'info.log'),
+            'formatter': 'simple',
+        },
+        'file_error': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'error.log'),
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'info_logger': {
+            'handlers': ['file_info'],
+            'level': 'INFO',
+        },
+        'error_logger': {
+            'handlers': ['file_error'],
+            'level': 'ERROR',
+        },
+        # Redirect all django log messages to our file handlers
+        'django': {
+            'handlers': ['console', 'file_info', 'file_error'],
+        },
+    }
+}
+
 AUTH_USER_MODEL = 'clients.Client'
 
 # Password validation

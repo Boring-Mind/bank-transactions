@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 import requests
@@ -5,6 +6,8 @@ from django.conf import settings
 
 from .models import Currency
 from .settings import get_currencies
+
+err_logger = logging.getLogger('error_logger')
 
 
 def parse_currencies_to_params(currencies: List[str]) -> str:
@@ -35,12 +38,22 @@ def retrieve_rates() -> dict:
     link = get_link()
     params = get_params()
 
-    response = requests.get(link, params)
-    if response.status_code == 200:
-        return response.json()['rates']
-    else:
-        # ToDo: add logging
-        return None
+    try:
+        response = requests.get(link, params)
+        if response.status_code == 200:
+            return response.json()['rates']
+        else:
+            err_logger.error(
+                'Response from Exchange rates API failed.'
+                ' Exchange rates was not updated. Try to resend request.'
+            )
+    except requests.exceptions.RequestException:
+        err_logger.exception(
+            "Error with sending request to the Exchange rate API",
+            exc_info=True
+        )
+    return None
+
 
 def update_rates() -> None:
     """Update exchange rates and save them to db.
@@ -49,6 +62,9 @@ def update_rates() -> None:
     """
     # ToDo: add await to this
     new_rates = retrieve_rates()
+
+    if new_rates is None:
+        return
 
     # ToDo: add await to this
     currencies = Currency.objects.all()
