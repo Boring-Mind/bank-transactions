@@ -4,7 +4,9 @@ from unittest import mock
 from django.conf import settings
 from django.test import TestCase
 
-from .exchange_rates import parse_currencies_to_params, retrieve_rates
+from .exchange_rates import (parse_currencies_to_params, retrieve_rates,
+                             update_rates)
+from .models import Currency
 from .settings import get_currencies
 
 
@@ -122,3 +124,59 @@ class ExchangeRatesTests(TestCase):
             actual = retrieve_rates()
 
         self.assertIsNone(actual)
+
+    def test_update_rates_query_amount(self):
+        """Integration test for exchange_rates::retrieve_rates function.
+
+        Ensures that amount of executed queries is as expected.
+        Also checks that updated values are correct.
+        """
+        # Create plenty of currencies with outdated rates
+        Currency.objects.create(
+            short_name="AUD",
+            full_name="Australian dollar",
+            rate=1.0253
+        )
+        Currency.objects.create(
+            short_name="EUR",
+            full_name="Euro",
+            rate=0.59683
+        )
+        Currency.objects.create(
+            short_name="GBP",
+            full_name="British pound",
+            rate=0.86256
+        )
+        Currency.objects.create(
+            short_name="JPY",
+            full_name="Japanese yen",
+            rate=101.136542
+        )
+        Currency.objects.create(
+            short_name="USD",
+            full_name="United states dollar",
+            rate=1
+        )
+
+        # New rates that would be inserted into db
+        rates = {
+            'AUD': 1.400612,
+            'EUR': 0.849127,
+            'GBP': 0.764595,
+            'JPY': 106.01586364,
+            'USD': 1
+        }
+
+        # Check the amount of executed queries
+        with self.assertNumQueries(2):
+            # Added in order to prevent ambiguous API call
+            with mock.patch(
+                'currency.exchange_rates.retrieve_rates',
+                return_value=rates
+            ):
+                update_rates()
+
+        currencies = Currency.objects.all()
+        updated_rates = {c.short_name: c.rate for c in currencies}
+        # Ensure that updated values are correct
+        self.assertEqual(rates, updated_rates)
