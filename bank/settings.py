@@ -167,6 +167,20 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
 ]
 
+# REST configuration
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
+
+SIMPLE_JWT = {
+    'SIGNING_KEY': config('JWT_SECRET'),
+    # Signing key must be 256+ bit long (about 64 chars)
+}
+
 # Exchange rates server parameters
 
 EXCHANGE_APP_ID = config('EXCHANGE_APP_ID')
