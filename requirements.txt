@@ -1,6 +1,6 @@
 argon2-cffi==20.1.0
 django-rest-marshmallow==4.0.2
-django==3.0.8
+django==3.1.0
 djangorestframework==3.11.0
 python-decouple==3.3
 requests==2.24.0
