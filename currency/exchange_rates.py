@@ -3,6 +3,7 @@ from typing import List
 
 import requests
 from django.conf import settings
+from django.db.models import Q
 
 from .models import Currency
 from .settings import get_currencies
@@ -75,4 +76,24 @@ def update_rates() -> None:
             c.rate = rate
 
     # ToDo: don't await for the result
+    # Make it via asyncio.ensure_future()
+    # https://stackoverflow.com/questions/37278647/fire-and-forget-python-async-await
     Currency.objects.bulk_update(currencies, ['rate'])
+
+def convert_currencies(c_from: str, c_to: str, amount: float) -> float:
+    """Convert currency from one to another."""
+    rates = Currency.objects.filter(
+        Q(short_name=c_from) | Q(short_name=c_to)
+    ).values()
+
+    if len(rates) != 2:
+        raise ValueError(f'DB returned {len(rates)} currencies instead of 2')
+
+    if rates[0]['short_name'] == c_from:
+        rate_from = rates[0]['rate']
+        rate_to = rates[1]['rate']
+    else:
+        rate_from = rates[1]['rate']
+        rate_to = rates[0]['rate']
+
+    return amount * (rate_to / rate_from)

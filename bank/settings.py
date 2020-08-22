@@ -32,7 +32,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -40,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Third-party
     'rest_framework',
+    'silk',
+    'corsheaders',
     # Internal
     'clients',
     'transactions',
@@ -49,8 +50,10 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    'silk.middleware.SilkyMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -165,6 +168,26 @@ PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
 ]
 
+# REST configuration
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+SIMPLE_JWT = {
+    'SIGNING_KEY': config('JWT_SECRET'),
+    # Signing key must be 256+ bit long (about 64 chars)
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
+# All origins are allowed. Our customers may connect to our API
+# from a lot of origins. So, instead of the CORS protection
+# the application needs a lot of authentication required views.
+# CORS is needed to bypass browsers' same origin policy.
+# Without CORS users cannot access our API through third-party site.
+
 # Exchange rates server parameters
 
 EXCHANGE_APP_ID = config('EXCHANGE_APP_ID')
@@ -189,3 +212,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = os.path.join('public', 'static')
+
+# Silk profiler
+SILKY_PYTHON_PROFILER = True
