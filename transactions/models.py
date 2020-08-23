@@ -24,7 +24,7 @@ class Transactions(models.Model):
     date = models.DateTimeField(blank=True)
 
     def save(self, *args, **kwargs):
-        """Make some pre-initialization and save object."""
+        """Make some post-initialization and save object."""
         self.transaction_id = generate_unique_sha_512()
         self.date = now()
         return super().save(*args, **kwargs)

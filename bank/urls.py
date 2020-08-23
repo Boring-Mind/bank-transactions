@@ -7,6 +7,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('users/', include('clients.urls')),
     path('currencies', include('currency.urls')),
+    path('transactions', include('transactions.urls')),
     path('silk/', include('silk.urls', namespace='silk')),
     path(
         'auth/token/',
