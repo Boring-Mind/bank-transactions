@@ -1,4 +1,4 @@
-from clients.models import Client
+from clients.models import Account
 from django.db import models
 from django.utils.timezone import now
 from utils.hashers import generate_unique_sha_512
@@ -9,13 +9,13 @@ class Transactions(models.Model):
     transaction_id = models.CharField(max_length=64, unique=True, blank=True)
     amount = models.FloatField()
     sender_id = models.ForeignKey(
-        Client,
+        Account,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name='sender_transaction'
     )
     receiver_id = models.ForeignKey(
-        Client,
+        Account,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name='receiver_transaction'
