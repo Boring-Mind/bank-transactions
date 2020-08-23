@@ -6,6 +6,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
 urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
     path('users/', include('clients.urls')),
+    path('currencies', include('currency.urls')),
     path('silk/', include('silk.urls', namespace='silk')),
     path(
         'auth/token/',
