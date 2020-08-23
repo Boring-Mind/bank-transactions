@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from datetime import timedelta
 
 from decouple import config
 
@@ -180,6 +181,9 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'SIGNING_KEY': config('JWT_SECRET'),
     # Signing key must be 256+ bit long (about 64 chars)
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
+    # Added for development needs.
+    # WARNING: remove this line in production
 }
 
 CORS_ORIGIN_ALLOW_ALL = True
