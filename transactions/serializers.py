@@ -6,4 +6,4 @@ from .models import Transactions
 class TransactionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transactions
-        exclude = ('id',)
+        fields = '__all__'

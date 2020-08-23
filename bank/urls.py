@@ -8,6 +8,7 @@ urlpatterns = [
     path('users/', include('clients.urls')),
     path('currencies', include('currency.urls')),
     path('transactions', include('transactions.urls')),
+    path('accounts', include('accounts.urls')),
     path('silk/', include('silk.urls', namespace='silk')),
     path(
         'auth/token/',

@@ -7,7 +7,7 @@
 # class CurrencySerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Currency
-#         exclude = ('id',)
+#         fields = '__all__'
 
 # class CurrencyListSerializer(serializers.ListSerializer):
 #     child = CurrencySerializer()
