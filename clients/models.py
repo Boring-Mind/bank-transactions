@@ -1,4 +1,3 @@
-from currency.models import Currency
 from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
 
@@ -20,16 +19,3 @@ class Client(AbstractUser):
     passport_number = models.CharField(max_length=10, unique=True)
 
     objects = ClientManager()
-
-
-class Account(models.Model):
-    currency = models.ForeignKey(
-        Currency,
-        on_delete=models.CASCADE,
-        related_name='currency_account'
-    )
-    client = models.ForeignKey(
-        Client,
-        on_delete=models.CASCADE,
-        related_name='client_account'
-    )

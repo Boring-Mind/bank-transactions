@@ -1,4 +1,4 @@
-from clients.models import Account
+from accounts.models import Account
 from django.db import models
 from django.utils.timezone import now
 from utils.hashers import generate_unique_sha_512
