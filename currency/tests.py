@@ -1,6 +1,7 @@
 from contextlib import contextmanager
 from unittest import mock
 
+import pytest
 from django.conf import settings
 from django.test import TestCase
 
@@ -366,67 +367,6 @@ class ExchangeRatesTests(TestCase):
         # Ensure that updated values are correct
         self.assertEqual(expected, updated_rates)
 
-    def test_convert_currencies_OK(self):
-        """Integration test for exchange_rates::convert_currencies function.
-
-        Checks the default case - all the currencies are available,
-        everything is OK.
-        """
-        Currency.objects.create(
-            short_name="CAD",
-            full_name="Canadian dollar",
-            rate=1.3146735942,
-        )
-        Currency.objects.create(
-            short_name="HKD",
-            full_name="HongKong dollar",
-            rate=7.7501885528,
-        )
-
-        expected = 5.8951428
-        actual = convert_currencies('CAD', 'HKD', 1.0)
-        self.assertAlmostEqual(expected, actual)
-
-    def test_convert_currencies_inverse_conversion_OK(self):
-        """Integration test for exchange_rates::convert_currencies function.
-
-        Checks inversed order of converse.
-        """
-        Currency.objects.create(
-            short_name="CAD",
-            full_name="Canadian dollar",
-            rate=1.3146735942,
-        )
-        Currency.objects.create(
-            short_name="HKD",
-            full_name="HongKong dollar",
-            rate=7.7501885528,
-        )
-
-        expected = 0.1696312
-        actual = convert_currencies('HKD', 'CAD', 1.0)
-        self.assertAlmostEqual(expected, actual)
-
-    def test_convert_currencies_with_custom_amount(self):
-        """Integration test for exchange_rates::convert_currencies function.
-
-        Checks custom amount of converse.
-        """
-        Currency.objects.create(
-            short_name="CAD",
-            full_name="Canadian dollar",
-            rate=1.3146735942,
-        )
-        Currency.objects.create(
-            short_name="HKD",
-            full_name="HongKong dollar",
-            rate=7.7501885528,
-        )
-
-        expected = 17.68607764249819
-        actual = convert_currencies('HKD', 'CAD', 104.261953)
-        self.assertAlmostEqual(expected, actual)
-
     def test_convert_currencies_without_any_currencies_in_db(self):
         """Integration test for exchange_rates::convert_currencies function.
 
@@ -434,3 +374,36 @@ class ExchangeRatesTests(TestCase):
         """
         with self.assertRaises(ValueError):
             convert_currencies('HKD', 'CAD', 1.0)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("amount,first,second,expected", [
+    # Default case
+    (1.0, 'CAD', 'HKD', 5.8951428),
+    # Inverse order
+    (1.0, 'HKD', 'CAD', 0.1696312),
+    # Another amount
+    (104.261953, 'HKD', 'CAD', 17.6860776),
+])
+def test_convert_currencies(
+    expected: float, amount: float, first: str, second: str
+):
+    """Integration test for exchange_rates::convert_currencies function.
+
+    first - first currency name
+    second - second currency name
+    amount - amount of transaction
+    """
+    Currency.objects.create(
+        short_name="CAD",
+        full_name="Canadian dollar",
+        rate=1.3146735942,
+    )
+    Currency.objects.create(
+        short_name="HKD",
+        full_name="HongKong dollar",
+        rate=7.7501885528,
+    )
+
+    actual = convert_currencies(first, second, amount)
+    assert expected == pytest.approx(actual)
