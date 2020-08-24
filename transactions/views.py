@@ -12,6 +12,12 @@ from .serializers import TransactionsPostSerializer, TransactionsReadSerializer
 
 
 class TransactionsPagination(PageNumberPagination):
+    """Transactions pagination class.
+
+    Looks similar to the default pagination class, except it cannot
+    receive page size from user.
+    """
+    
     page_size = 100
     page_query_param = None
     max_page_size = 100
@@ -25,17 +31,24 @@ class IncomingFilter(BaseFilterBackend):
         return get_param.split('.')[0].lower()
 
     def filter_queryset(self, request, queryset, view):
-        # import pdb; pdb.set_trace()
-
+        # Parse incoming parameter
         incoming = request.GET.get('incoming')
         incoming = bool(strtobool(__class__.cut_url_suffix(incoming)))
 
+        # Parse account_id parameter
         acc_id = request.GET.get('acc_id')
         acc_id = __class__.cut_url_suffix(acc_id)
+        
+        if incoming:
+            # Return all the incoming transactions
+            return queryset.filter(receiver_id=acc_id)
+        # Return all the outgoing transactions
         return queryset.filter(sender_id=acc_id)
 
 
 class TransactionsCreateView(CreateAPIView):
+    """View that creates new transaction on POST request."""
+
     queryset = Transactions.objects.all()
     serializer_class = TransactionsPostSerializer
     pagination_class = None
@@ -47,21 +60,30 @@ class TransactionsCreateView(CreateAPIView):
 
 
 class TransactionsListView(ListAPIView):
-    queryset = Transactions.objects.select_related(
-        'sender_id', 'receiver_id'
-    ).values()
+    """View that shows all the transactions with pagination.
+
+    Users must be authenticated.
+    """
+
+    queryset = Transactions.objects.values()
     serializer_class = TransactionsReadSerializer
     pagination_class = TransactionsPagination
     permission_classes = [IsAuthenticated]
 
-class TransactionsIncomingView(TransactionsListView):
-    filter_backends = [IncomingFilter]
 
-    # def get(self, request, *args, **kwargs):
+class TransactionsIncomingView(TransactionsListView):
+    """View that shows only incoming or outcoming operations."""
+
+    filter_backends = [IncomingFilter]
 
 
 @csrf_exempt
 def transactions_views(request):
+    """Router for all the transactions views.
+    
+    Needed in order to perform multiple requests to the same URL.
+    Requests differ by their method or params and don't overlap.
+    """
     if request.method == 'POST':
         return TransactionsCreateView.as_view()(request)
     elif request.method == 'GET':

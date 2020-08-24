@@ -10,6 +10,12 @@ class TransactionsPostSerializer(serializers.ModelSerializer):
 
 
 class TransactionsReadSerializer(TransactionsPostSerializer):
+    """Transactions serializer for read operations only.
+    
+    Assumes that sender_id and receiver_id are only ids,
+    not the full Account objects.
+    """
+
     sender_id = serializers.IntegerField(
         source='sender_id_id', read_only=True
     )
