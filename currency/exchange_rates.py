@@ -64,7 +64,7 @@ def update_rates() -> None:
     # ToDo: add await to this
     new_rates = retrieve_rates()
 
-    if new_rates is None:
+    if not bool(new_rates):
         return
 
     # ToDo: add await to this
