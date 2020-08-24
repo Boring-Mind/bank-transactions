@@ -80,6 +80,7 @@ def update_rates() -> None:
     # https://stackoverflow.com/questions/37278647/fire-and-forget-python-async-await
     Currency.objects.bulk_update(currencies, ['rate'])
 
+
 def convert_currencies(c_from: str, c_to: str, amount: float) -> float:
     """Convert currency from one to another."""
     rates = Currency.objects.filter(

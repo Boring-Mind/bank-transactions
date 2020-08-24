@@ -183,190 +183,6 @@ class ExchangeRatesTests(TestCase):
         # Ensure that updated values are correct
         self.assertEqual(rates, updated_rates)
 
-    def test_update_rates_has_more_currencies(self):
-        """Integration test for exchange_rates::retrieve_rates function.
-
-        Checks the case when there are more received currencies
-        than the stored one. But all the values are OK.
-        """
-        # Create plenty of currencies with outdated rates
-        Currency.objects.create(
-            short_name="AUD",
-            full_name="Australian dollar",
-            rate=1.0253
-        )
-        Currency.objects.create(
-            short_name="EUR",
-            full_name="Euro",
-            rate=0.59683
-        )
-        Currency.objects.create(
-            short_name="GBP",
-            full_name="British pound",
-            rate=0.86256
-        )
-        Currency.objects.create(
-            short_name="JPY",
-            full_name="Japanese yen",
-            rate=101.136542
-        )
-        Currency.objects.create(
-            short_name="USD",
-            full_name="United states dollar",
-            rate=1
-        )
-
-        # New rates that would be inserted into db
-        rates = {
-            'ALL': 0.698105,
-            'AUD': 1.400612,
-            'DZD': 8.055390,
-            'EUR': 0.849127,
-            'GBP': 0.764595,
-            'JPY': 106.01586364,
-            'XCD': 47.434566,
-            'USD': 1
-        }
-
-        # Expected result - list should not contain new currencies
-        expected = {
-            'AUD': 1.400612,
-            'EUR': 0.849127,
-            'GBP': 0.764595,
-            'JPY': 106.01586364,
-            'USD': 1
-        }
-
-        # Added in order to prevent ambiguous API call
-        with mock.patch(
-            'currency.exchange_rates.retrieve_rates',
-            return_value=rates
-        ):
-            update_rates()
-
-        currencies = Currency.objects.all()
-        updated_rates = {c.short_name: c.rate for c in currencies}
-        # Ensure that updated values are correct
-        self.assertEqual(expected, updated_rates)
-
-    def test_update_rates_has_less_currencies(self):
-        """Integration test for exchange_rates::retrieve_rates function.
-
-        Checks the case when there are less received currencies
-        than the stored one. So, some of the values will not update.
-        """
-        # Create plenty of currencies with outdated rates
-        Currency.objects.create(
-            short_name="AUD",
-            full_name="Australian dollar",
-            rate=1.0253
-        )
-        Currency.objects.create(
-            short_name="EUR",
-            full_name="Euro",
-            rate=0.59683
-        )
-        Currency.objects.create(
-            short_name="GBP",
-            full_name="British pound",
-            rate=0.86256
-        )
-        Currency.objects.create(
-            short_name="JPY",
-            full_name="Japanese yen",
-            rate=101.136542
-        )
-        Currency.objects.create(
-            short_name="USD",
-            full_name="United states dollar",
-            rate=1
-        )
-
-        # New rates that would be inserted into db
-        rates = {
-            'AUD': 1.400612,
-            'GBP': 0.764595,
-            'USD': 1
-        }
-
-        # Expected result - JPY and EUR will not update
-        expected = {
-            'AUD': 1.400612,
-            'EUR': 0.59683,
-            'GBP': 0.764595,
-            'JPY': 101.136542,
-            'USD': 1
-        }
-
-        # Added in order to prevent ambiguous API call
-        with mock.patch(
-            'currency.exchange_rates.retrieve_rates',
-            return_value=rates
-        ):
-            update_rates()
-
-        currencies = Currency.objects.all()
-        updated_rates = {c.short_name: c.rate for c in currencies}
-        # Ensure that updated values are correct
-        self.assertEqual(expected, updated_rates)
-
-    def test_update_rates_received_empty_list(self):
-        """Integration test for exchange_rates::retrieve_rates function.
-
-        Checks the case when there was no new values received.
-        So, none of the stored values will update.
-        """
-        # Create plenty of currencies with outdated rates
-        Currency.objects.create(
-            short_name="AUD",
-            full_name="Australian dollar",
-            rate=1.0253
-        )
-        Currency.objects.create(
-            short_name="EUR",
-            full_name="Euro",
-            rate=0.59683
-        )
-        Currency.objects.create(
-            short_name="GBP",
-            full_name="British pound",
-            rate=0.86256
-        )
-        Currency.objects.create(
-            short_name="JPY",
-            full_name="Japanese yen",
-            rate=101.136542
-        )
-        Currency.objects.create(
-            short_name="USD",
-            full_name="United states dollar",
-            rate=1
-        )
-
-        # New rates that would be inserted into db
-        rates = {}
-
-        # Expected result - no values will be updated
-        expected = {
-            'AUD': 1.0253,
-            'EUR': 0.59683,
-            'GBP': 0.86256,
-            'JPY': 101.136542,
-            'USD': 1
-        }
-
-        # Added in order to prevent ambiguous API call
-        with mock.patch(
-            'currency.exchange_rates.retrieve_rates',
-            return_value=rates
-        ):
-            update_rates()
-
-        currencies = Currency.objects.all()
-        updated_rates = {c.short_name: c.rate for c in currencies}
-        # Ensure that updated values are correct
-        self.assertEqual(expected, updated_rates)
-
     def test_convert_currencies_without_any_currencies_in_db(self):
         """Integration test for exchange_rates::convert_currencies function.
 
@@ -374,6 +190,96 @@ class ExchangeRatesTests(TestCase):
         """
         with self.assertRaises(ValueError):
             convert_currencies('HKD', 'CAD', 1.0)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize('rates,expected', [
+    # Checks the case when there are more received currencies
+    # than the stored one. But all the values are OK.
+    ({
+        'ALL': 0.698105,
+        'AUD': 1.400612,
+        'DZD': 8.055390,
+        'EUR': 0.849127,
+        'GBP': 0.764595,
+        'JPY': 106.01586364,
+        'XCD': 47.434566,
+        'USD': 1
+    }, {
+        'AUD': 1.400612,
+        'EUR': 0.849127,
+        'GBP': 0.764595,
+        'JPY': 106.01586364,
+        'USD': 1
+    }),
+
+    # Checks the case when there are less received currencies
+    # than the stored one. So, some of the values will not update.
+    ({
+        'AUD': 1.400612,
+        'GBP': 0.764595,
+        'USD': 1
+    }, {
+        'AUD': 1.400612,
+        'EUR': 0.59683,
+        'GBP': 0.764595,
+        'JPY': 101.136542,
+        'USD': 1
+    }),
+
+    # Checks the case when there was no new values received.
+    # So, none of the stored values will update.
+    ({}, {
+        'AUD': 1.0253,
+        'EUR': 0.59683,
+        'GBP': 0.86256,
+        'JPY': 101.136542,
+        'USD': 1
+    }),
+])
+def test_update_rates(rates: dict, expected: dict):
+    """Integration test for exchange_rates::update_rates function.
+
+    rates - new rates that would be inserted into db
+    """
+    # Create plenty of currencies with outdated rates
+    Currency.objects.create(
+        short_name="AUD",
+        full_name="Australian dollar",
+        rate=1.0253
+    )
+    Currency.objects.create(
+        short_name="EUR",
+        full_name="Euro",
+        rate=0.59683
+    )
+    Currency.objects.create(
+        short_name="GBP",
+        full_name="British pound",
+        rate=0.86256
+    )
+    Currency.objects.create(
+        short_name="JPY",
+        full_name="Japanese yen",
+        rate=101.136542
+    )
+    Currency.objects.create(
+        short_name="USD",
+        full_name="United states dollar",
+        rate=1
+    )
+
+    # Added in order to prevent ambiguous API call
+    with mock.patch(
+        'currency.exchange_rates.retrieve_rates',
+        return_value=rates
+    ):
+        update_rates()
+
+    currencies = Currency.objects.all()
+    updated_rates = {c.short_name: c.rate for c in currencies}
+    # Ensure that updated values are correct
+    assert expected == updated_rates
 
 
 @pytest.mark.django_db
