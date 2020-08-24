@@ -1,0 +1,14 @@
+[run]
+source = .
+branch = True
+omit =
+    manage.py
+    */asgi.py
+    */wsgi.py
+    */apps.py
+    */urls.py
+
+[report]
+fail_under = 80
+show_missing = True
+skip_covered = True
