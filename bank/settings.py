@@ -191,10 +191,13 @@ CACHES = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'authentication.auth.JWTCachedAuthentication',
+        'drf_utils.auth.JWTCachedAuthentication',
     ),
     'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
+        'drf_utils.renderers.PlainJsonRenderer',
+    ),
+    'DEFAULT_CONTENT_NEGOTIATION_CLASS': (
+        'drf_utils.negotiation.IgnoreContentNegotiation'
     ),
 }
 
