@@ -19,7 +19,7 @@ def test_currency_read_serializer_correct_serialization():
         )
     ])
     queryset = Currency.objects.all()
-    expected = '{"AUD":1.0253,"EUR":0.59683}'
+    expected = {"AUD": 1.0253, "EUR": 0.59683}
 
     actual = CurrencyReadSerializer.serialize_data(queryset)
 

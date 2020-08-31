@@ -5,5 +5,5 @@ class CurrencyReadSerializer(object):
     {"short_name":rate}
     """
     @staticmethod
-    def serialize_data(queryset) -> str:
+    def serialize_data(queryset) -> dict:
         return {entry.short_name: entry.rate for entry in queryset}
