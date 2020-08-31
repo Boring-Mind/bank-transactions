@@ -79,6 +79,8 @@ TEMPLATES = [
     },
 ]
 
+TEMPLATE_DEBUG = DEBUG
+
 WSGI_APPLICATION = 'bank.wsgi.application'
 
 
@@ -190,6 +192,9 @@ CACHES = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'authentication.auth.JWTCachedAuthentication',
+    ),
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
     ),
 }
 
