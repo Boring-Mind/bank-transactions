@@ -61,12 +61,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-    }
-}
-
 ROOT_URLCONF = 'bank.urls'
 
 TEMPLATES = [
@@ -175,6 +169,21 @@ AUTH_PASSWORD_VALIDATORS = [
 PASSWORD_HASHERS = [
     'django.contrib.auth.hashers.Argon2PasswordHasher',
 ]
+
+# Cache configuration
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": config('REDIS_URL'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": config('REDIS_PASSWORD')
+        }
+    }
+}
+
 
 # REST configuration
 
