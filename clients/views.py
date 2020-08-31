@@ -1,5 +1,5 @@
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from silk.profiling.profiler import silk_profile
 
 from .models import Client
@@ -23,3 +23,4 @@ class ClientCreateView(CreateAPIView):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
     pagination_class = None
+    permission_classes = [AllowAny]
