@@ -180,7 +180,7 @@ PASSWORD_HASHERS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'currency.authentication.JWTCachedAuthentication',
+        'authentication.auth.JWTCachedAuthentication',
     ),
 }
 
