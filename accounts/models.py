@@ -14,3 +14,4 @@ class Account(models.Model):
         on_delete=models.CASCADE,
         related_name='client_account'
     )
+    balance = models.DecimalField(default=0.0, max_digits=16, decimal_places=4)

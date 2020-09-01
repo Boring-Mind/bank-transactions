@@ -14,3 +14,6 @@ class ClientSerializer(serializers.ModelSerializer):
             'phone_number',
             'passport_number',
         ]
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
