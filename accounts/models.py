@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from clients.models import Client
 from currency.models import Currency
 from django.core.validators import MinValueValidator
@@ -19,5 +21,5 @@ class Account(models.Model):
         default=0.0,
         max_digits=16,
         decimal_places=4,
-        validators=[MinValueValidator]
+        validators=[MinValueValidator(Decimal())]
     )
