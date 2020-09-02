@@ -4,6 +4,7 @@ import pytest
 from accounts.models import Account
 from clients.models import Client
 from currency.models import Currency
+from django.core.validators import ValidationError
 
 from .models import Transactions
 
@@ -54,6 +55,57 @@ def test_transaction_in_one_currency():
 
     assert expected_sender_balance == sender.balance
     assert expected_receiver_balance == receiver.balance
+
+
+@pytest.mark.django_db
+def test_transaction_in_two_currencies():
+    """Check that account balances was changed after correct transaction.
+
+    Integration test that tests sender and receiver balances changing
+    after the correct transactions save. Operations are made in two currencies.
+    """
+    client1 = Client.objects.create(
+        username="some_name",
+        password="S0m3_passw0rd",
+        passport_number="1131230",
+        phone_number="113131035"
+    )
+    client2 = Client.objects.create(
+        username="some_name2",
+        password="S0m3_passw0rd",
+        passport_number="11312302",
+        phone_number="11313152"
+    )
+    currency1 = Currency.objects.create(
+        short_name="CAD", full_name="Canadian dollar", rate=1.3014098607
+    )
+    currency2 = Currency.objects.create(
+        short_name="HKD", full_name="Hong Kong dollar", rate=7.7500625678
+    )
+    sender = Account.objects.create(
+        currency=currency1,
+        client=client1,
+        balance=Decimal("1000")
+    )
+    receiver = Account.objects.create(
+        currency=currency2,
+        client=client2
+    )
+
+    expected_sender_balance = Decimal("900.0")
+    expected_receiver_balance = Decimal("595.5128205061709")
+
+    Transactions.objects.create(
+        amount=100.0,
+        sender_id=sender,
+        receiver_id=receiver
+    )
+
+    sender.refresh_from_db(fields=('balance',))
+    receiver.refresh_from_db(fields=('balance',))
+
+    assert round(expected_sender_balance, 4) == round(sender.balance, 4)
+    assert round(expected_receiver_balance, 4) == round(receiver.balance, 4)
 
 
 @pytest.mark.django_db
@@ -134,6 +186,41 @@ def test_transaction_when_sender_has_not_enough_money():
         receiver_id=receiver,
         sender_id=None
     )
+
+    receiver.refresh_from_db(fields=('balance',))
+
+    assert expected_receiver_balance == receiver.balance
+
+
+@pytest.mark.django_db
+def test_transaction_was_not_successful():
+    """Check the case - transaction wasn't saved.
+
+    Expected behaviour - transaction will rool back
+    and payment will not proceed.
+    """
+    client1 = Client.objects.create(
+        username="some_name",
+        password="S0m3_passw0rd",
+        passport_number="1131230",
+        phone_number="113131035"
+    )
+    currency = Currency.objects.create(
+        short_name="USD", full_name="United States dollar", rate=0
+    )
+    receiver = Account.objects.create(
+        currency=currency,
+        client=client1
+    )
+
+    expected_receiver_balance = Decimal()
+
+    with pytest.raises(ValidationError):
+        Transactions.objects.create(
+            amount=-500.0,
+            receiver_id=receiver,
+            sender_id=None
+        )
 
     receiver.refresh_from_db(fields=('balance',))
 

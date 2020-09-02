@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from accounts.models import Account
 from currency.exchange_rates import convert_currencies
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, ValidationError
 from django.db import models, transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -31,6 +31,8 @@ class Transactions(models.Model):
 
     def save(self, *args, **kwargs):
         """Make some post-initialization and save object."""
+        if self.amount < 0.000000000000000:
+            raise ValidationError('Transactions amount cannot be negative')
         self.transaction_id = generate_unique_sha_512()
         self.date = now()
         return super().save(*args, **kwargs)
