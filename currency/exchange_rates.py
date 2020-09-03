@@ -81,20 +81,8 @@ def update_rates() -> None:
     Currency.objects.bulk_update(currencies, ['rate'])
 
 
-def convert_currencies(c_from: str, c_to: str, amount: float) -> float:
+def convert_currencies(
+    c_from: Currency, c_to: Currency, amount: float
+) -> float:
     """Convert currency from one to another."""
-    rates = Currency.objects.filter(
-        Q(short_name=c_from) | Q(short_name=c_to)
-    ).values()
-
-    if len(rates) != 2:
-        raise ValueError(f'DB returned {len(rates)} currencies instead of 2')
-
-    if rates[0]['short_name'] == c_from:
-        rate_from = rates[0]['rate']
-        rate_to = rates[1]['rate']
-    else:
-        rate_from = rates[1]['rate']
-        rate_to = rates[0]['rate']
-
-    return amount * (rate_to / rate_from)
+    return amount * (c_to.rate / c_from.rate)

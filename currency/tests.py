@@ -183,14 +183,6 @@ class ExchangeRatesTests(TestCase):
         # Ensure that updated values are correct
         self.assertEqual(rates, updated_rates)
 
-    def test_convert_currencies_without_any_currencies_in_db(self):
-        """Integration test for exchange_rates::convert_currencies function.
-
-        Checks branch where no currency rates was propagated.
-        """
-        with self.assertRaises(ValueError):
-            convert_currencies('HKD', 'CAD', 1.0)
-
 
 @pytest.mark.django_db
 @pytest.mark.parametrize('rates,expected', [
@@ -300,16 +292,23 @@ def test_convert_currencies(
     second - second currency name
     amount - amount of transaction
     """
-    Currency.objects.create(
+    cur1 = Currency.objects.create(
         short_name="CAD",
         full_name="Canadian dollar",
         rate=1.3146735942,
     )
-    Currency.objects.create(
+    cur2 = Currency.objects.create(
         short_name="HKD",
         full_name="HongKong dollar",
         rate=7.7501885528,
     )
+
+    if cur1.short_name == first:
+        first = cur1
+        second = cur2
+    else:
+        first = cur2
+        second = cur1
 
     actual = convert_currencies(first, second, amount)
     assert expected == pytest.approx(actual)

@@ -3,7 +3,8 @@ from decimal import Decimal
 from accounts.models import Account
 from currency.exchange_rates import convert_currencies
 from django.core.validators import MinValueValidator, ValidationError
-from django.db import models, transaction
+from django.db import models
+from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils.timezone import now
@@ -51,8 +52,24 @@ def update_balance(sender, instance, **kwargs):
         receiver.save()
         return
 
-    sender = Account.objects.get(id=instance.sender_id.id)
-    receiver = Account.objects.get(id=instance.receiver_id.id)
+    accounts = list(Account.objects.select_related('currency').filter(
+        Q(id=instance.sender_id.id) | Q(id=instance.receiver_id.id)
+    ))
+    
+    sender: Account
+    receiver: Account
+
+    try:
+        if accounts[0].id == instance.sender_id.id:
+            sender = accounts[0]
+            receiver = accounts[1]
+        else:
+            receiver = accounts[0]
+            sender = accounts[1]
+    except IndexError:
+        raise IndexError(
+            f"Database returned {len(accounts)} objects instead of 2"
+        )
 
     if round(sender.balance - Decimal(instance.amount), 4) < 0:
         # If you have not enough money on your balance,
@@ -64,13 +81,11 @@ def update_balance(sender, instance, **kwargs):
     receiver_amount = instance.amount
     if sender.currency != receiver.currency:
         receiver_amount = convert_currencies(
-            sender.currency.short_name,
-            receiver.currency.short_name,
+            sender.currency,
+            receiver.currency,
             instance.amount
         )
     
     sender.balance -= Decimal(instance.amount)
     receiver.balance += Decimal(receiver_amount)
-    with transaction.atomic():
-        sender.save()
-        receiver.save()
+    Account.objects.bulk_update([sender, receiver], ['balance'])

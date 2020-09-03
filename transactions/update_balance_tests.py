@@ -209,3 +209,35 @@ def test_transaction_was_not_successful():
     receiver.refresh_from_db(fields=('balance',))
 
     assert expected_receiver_balance == receiver.balance
+
+
+@pytest.mark.django_db
+def test_max_queries_in_largest_case(django_assert_num_queries):
+    """Ensure that the query count doesn't exceed our needs.
+
+    Test the largest case of the update_balance function - transaction
+    between two clients in two different currencies.
+    """
+    client1, client2 = get_two_clients()
+    currency1 = Currency.objects.create(
+        short_name="CAD", full_name="Canadian dollar", rate=1.3014098607
+    )
+    currency2 = Currency.objects.create(
+        short_name="HKD", full_name="Hong Kong dollar", rate=7.7500625678
+    )
+    sender = Account.objects.create(
+        currency=currency1,
+        client=client1,
+        balance=Decimal("1000")
+    )
+    receiver = Account.objects.create(
+        currency=currency2,
+        client=client2
+    )
+
+    with django_assert_num_queries(3):
+        Transactions.objects.create(
+            amount=100.0,
+            sender_id=sender,
+            receiver_id=receiver
+        )
