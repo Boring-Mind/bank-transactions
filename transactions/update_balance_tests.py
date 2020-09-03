@@ -9,13 +9,18 @@ from django.core.validators import ValidationError
 from .models import Transactions
 
 
-@pytest.mark.django_db
-def test_transaction_in_one_currency():
-    """Check that account balances was changed after correct transaction.
+def get_client():
+    """Fixture that returns one client object."""
+    return Client.objects.create(
+        username="some_name",
+        password="S0m3_passw0rd",
+        passport_number="1131230",
+        phone_number="113131035"
+    )
 
-    Integration test that tests sender and receiver balances changing
-    after the correct transactions save. Operations are made in one currency.
-    """
+
+def get_two_clients():
+    """Fixture that returns two clients."""
     client1 = Client.objects.create(
         username="some_name",
         password="S0m3_passw0rd",
@@ -28,6 +33,17 @@ def test_transaction_in_one_currency():
         passport_number="11312302",
         phone_number="11313152"
     )
+    return (client1, client2)
+
+
+@pytest.mark.django_db
+def test_transaction_in_one_currency():
+    """Check that account balances was changed after correct transaction.
+
+    Integration test that tests sender and receiver balances changing
+    after the correct transactions save. Operations are made in one currency.
+    """
+    client1, client2 = get_two_clients()
     currency = Currency.objects.create(
         short_name="USD", full_name="United States dollar", rate=0
     )
@@ -64,18 +80,7 @@ def test_transaction_in_two_currencies():
     Integration test that tests sender and receiver balances changing
     after the correct transactions save. Operations are made in two currencies.
     """
-    client1 = Client.objects.create(
-        username="some_name",
-        password="S0m3_passw0rd",
-        passport_number="1131230",
-        phone_number="113131035"
-    )
-    client2 = Client.objects.create(
-        username="some_name2",
-        password="S0m3_passw0rd",
-        passport_number="11312302",
-        phone_number="11313152"
-    )
+    client1, client2 = get_two_clients()
     currency1 = Currency.objects.create(
         short_name="CAD", full_name="Canadian dollar", rate=1.3014098607
     )
@@ -109,23 +114,13 @@ def test_transaction_in_two_currencies():
 
 
 @pytest.mark.django_db
-def test_deposit_transaction_with_no_sender():
-    """Check the case of deposit transaction - only receiver field is set.
+def test_transaction_when_sender_has_not_enough_money():
+    """Check the case - sender hasn't enough money to proceed transaction.
 
-    Check that valid transaction leads to receivers balance increase.
+    Expected behaviour - transaction will rool back
+    and payment will not proceed.
     """
-    client1 = Client.objects.create(
-        username="some_name",
-        password="S0m3_passw0rd",
-        passport_number="1131230",
-        phone_number="113131035"
-    )
-    client2 = Client.objects.create(
-        username="some_name2",
-        password="S0m3_passw0rd",
-        passport_number="11312302",
-        phone_number="11313152"
-    )
+    client1, client2 = get_two_clients()
     currency = Currency.objects.create(
         short_name="USD", full_name="United States dollar", rate=0
     )
@@ -159,18 +154,12 @@ def test_deposit_transaction_with_no_sender():
 
 
 @pytest.mark.django_db
-def test_transaction_when_sender_has_not_enough_money():
-    """Check the case - sender hasn't enough money to proceed transaction.
+def test_deposit_transaction_with_no_sender():
+    """Check the case of deposit transaction - only receiver field is set.
 
-    Expected behaviour - transaction will rool back
-    and payment will not proceed.
+    Check that valid transaction leads to receivers balance increase.
     """
-    client1 = Client.objects.create(
-        username="some_name",
-        password="S0m3_passw0rd",
-        passport_number="1131230",
-        phone_number="113131035"
-    )
+    client1 = get_client()
     currency = Currency.objects.create(
         short_name="USD", full_name="United States dollar", rate=0
     )
@@ -199,12 +188,7 @@ def test_transaction_was_not_successful():
     Expected behaviour - transaction will rool back
     and payment will not proceed.
     """
-    client1 = Client.objects.create(
-        username="some_name",
-        password="S0m3_passw0rd",
-        passport_number="1131230",
-        phone_number="113131035"
-    )
+    client1 = get_client()
     currency = Currency.objects.create(
         short_name="USD", full_name="United States dollar", rate=0
     )
