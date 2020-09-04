@@ -18,6 +18,7 @@ def transaction_obj():
         id=4,
         amount=10411.326,
         sender_id__id=2,
+        sender_id__balance=12000.0,
         receiver_id__id=3
     )
 
