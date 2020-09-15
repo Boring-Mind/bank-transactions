@@ -4,7 +4,7 @@ from silk.profiling.profiler import silk_profile
 
 from .models import Client
 from .permissions import IsOwnerOrAdmin
-from .serializers import ClientSerializer
+from .serializers import ClientSerializer, ClientWriteSerializer
 
 
 class ClientIdView(RetrieveUpdateDestroyAPIView):
@@ -21,6 +21,6 @@ class ClientIdView(RetrieveUpdateDestroyAPIView):
 
 class ClientCreateView(CreateAPIView):
     queryset = Client.objects.all()
-    serializer_class = ClientSerializer
+    serializer_class = ClientWriteSerializer
     pagination_class = None
     permission_classes = [AllowAny]
