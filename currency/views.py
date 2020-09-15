@@ -15,7 +15,10 @@ def is_authenticated(request) -> bool:
 @renderer_classes([PlainJsonRenderer])
 def currency_get_view(request):
     if not is_authenticated(request):
-        return Response({'test': False}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(
+            {'message': 'Authentication token is not provided.'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
     
     data = Currency.objects.all().defer('full_name')
     data = CurrencyReadSerializer.serialize_data(data)
