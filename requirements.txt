@@ -3,13 +3,13 @@ django-cors-headers==3.5.0
 django-redis==4.12.1
 django==3.1.1
 djangorestframework-simplejwt==4.4.0
-djangorestframework==3.11.1
+djangorestframework==3.12.1
 model-bakery==1.1.1
-orjson==3.3.1
+orjson==3.4.0
 pipdeptree==1.0.0
 pytest-cov==2.10.1
 pytest-django==3.10.0
-pytest==6.0.2
+pytest==6.1.0
 python-decouple==3.3
 requests==2.24.0
 wheel==0.35.1
