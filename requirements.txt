@@ -2,7 +2,7 @@ argon2-cffi==20.1.0
 dj-database-url==0.5.0
 django-cors-headers==3.5.0
 django-redis==4.12.1
-django==3.1.1
+django==3.1.6
 djangorestframework-simplejwt==4.4.0
 djangorestframework==3.12.1
 model-bakery==1.1.1
